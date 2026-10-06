@@ -30,7 +30,7 @@ def b64_image(filename):
     data = (ASSETS_DIR / filename).read_bytes()
     return base64.b64encode(data).decode()
 
-LOGO_FULL_B64 = b64_image("covenant_logo_full.png")
+LOGO_FULL_B64 = b64_image("Covenant_Logo-removebg.png")
 LOGO_MARK_B64 = b64_image("covenant_logo_mark.png")
 
 # ---------------------------------------------------------------------------
@@ -82,7 +82,7 @@ RECOMMENDATIONS = [
         "current_state": "Reviews are requested verbally and inconsistently when a customer picks up their vehicle.",
         "recommendation": "Send an automatic text asking for a review a day or two after service is complete.",
         "why_it_matters": "Builds a steady stream of online reviews with no extra effort from staff, helping attract new customers over time.",
-        "suggested_tools": ["Podium", "NiceJob"],
+        "suggested_tools": ["Google", "NiceJob"],
         "estimated_monthly_cost": "Included in Podium subscription above",
         "time_saved_driver": "review_requests",
         "setup_summary": "Turn on in the same Podium account \u2014 about 15 minutes",
@@ -114,6 +114,14 @@ RECOMMENDATIONS = [
         "priority": "Major Project",
     },
 ]
+
+# Consultant contact details shown with the CTA on the final page.
+CONSULTANT = {
+    "name": "Nathan Donaldson",
+    "phone": "(208) 244-2107",
+    "email": "nathan@covenantaico.com",
+    "website": "covenantaico.com",
+}
 
 WEEKS_PER_MONTH = 4.33
 
@@ -239,6 +247,19 @@ def major_project_summaries():
         </div>"""
     return html
 
+def contact_block():
+    rows = ""
+    for label, key in (("PHONE", "phone"), ("EMAIL", "email"), ("WEBSITE", "website")):
+        if CONSULTANT[key]:
+            rows += f"""
+      <div class="contact-row"><span class="contact-label">{label}</span><span>{CONSULTANT[key]}</span></div>"""
+    if not CONSULTANT["name"] and not rows:
+        return ""
+    return f"""
+    <div class="cta-contact">
+      <div class="contact-name">{CONSULTANT['name']}</div>{rows}
+    </div>"""
+
 HTML_TEMPLATE = f"""
 <!DOCTYPE html>
 <html>
@@ -337,28 +358,6 @@ HTML_TEMPLATE = f"""
     letter-spacing: 0.5px; margin-top: 4px;
   }}
 
-  /* ---- MATRIX ---- */
-  .matrix-page {{ display: flex; flex-direction: column; }}
-  .matrix-title {{
-    font-size: 30px; font-weight: 700; letter-spacing: 1px; margin-bottom: 24px; color: {GREEN};
-    font-family: 'Liberation Serif', Georgia, serif;
-  }}
-  .matrix-grid {{
-    flex: 1; display: grid; grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr; gap: 14px; position: relative;
-    margin-bottom: 0.5in;
-  }}
-  .matrix-cell {{
-    border-radius: 8px; padding: 20px; background: {CARD}; border: 1px solid {CARD_BORDER};
-    display: flex; flex-direction: column; justify-content: space-between;
-  }}
-  .matrix-cell.quick-win {{ background: {GOLD}; color: {GREEN}; border: none; }}
-  .matrix-cell h4 {{ font-size: 16px; margin: 0 0 8px 0; font-weight: 700; font-family: 'Liberation Serif', Georgia, serif; color: {GREEN}; }}
-  .matrix-cell.quick-win h4 {{ color: {GREEN}; }}
-  .matrix-cell .items {{ font-size: 20px; font-weight: 700; letter-spacing: 4px; color: {GREEN}; font-family: 'Liberation Serif', Georgia, serif; }}
-  .matrix-cell .note {{ font-size: 11px; color: {MUTED}; }}
-  .matrix-cell.quick-win .note {{ color: {GREEN}; opacity: 0.85; }}
-
   /* ---- QUICK WINS LIST ---- */
   .qw-row {{
     display: flex; align-items: center; gap: 14px;
@@ -423,6 +422,17 @@ HTML_TEMPLATE = f"""
   }}
   .cta-box h3 {{ color: {GOLD}; }}
   .cta-box p {{ color: {CREAM}; }}
+  .cta-contact {{
+    border-top: 1px solid {GOLD}; margin-top: 18px; padding-top: 16px;
+  }}
+  .cta-contact .contact-name {{
+    font-size: 20px; font-weight: 700; color: {CREAM}; margin-bottom: 10px;
+    font-family: 'Liberation Serif', Georgia, serif;
+  }}
+  .cta-contact .contact-row {{ display: flex; font-size: 13px; padding: 3px 0; color: {CREAM}; }}
+  .cta-contact .contact-label {{
+    width: 80px; color: {GOLD}; font-size: 10.5px; letter-spacing: 1px; padding-top: 2px;
+  }}
 </style>
 </head>
 <body>
@@ -471,36 +481,7 @@ HTML_TEMPLATE = f"""
   <div class="footer-brand"><img src="data:image/png;base64,{LOGO_MARK_B64}"> COVENANT AI CONSULTING &middot; AI AUDIT REPORT</div>
 </div>
 
-<!-- PAGE 3: IMPACT-EFFORT MATRIX -->
-<div class="page matrix-page">
-  <div class="eyebrow">Prioritization</div>
-  <div class="matrix-title">Impact&ndash;Effort Matrix</div>
-  <div class="matrix-grid">
-    <div class="matrix-cell quick-win">
-      <h4>QUICK WINS</h4>
-      <div class="items">{' '.join(str(i) for i in range(1, len(quick_wins)+1))}</div>
-      <div class="note">High impact, low effort &mdash; this report focuses here.</div>
-    </div>
-    <div class="matrix-cell">
-      <h4>MAJOR PROJECTS</h4>
-      <div class="items">{' '.join(str(i) for i in range(len(quick_wins)+1, len(quick_wins)+len(major_projects)+1)) or '&mdash;'}</div>
-      <div class="note">High impact, high effort &mdash; phase these in after the wins.</div>
-    </div>
-    <div class="matrix-cell">
-      <h4>FILL-INS</h4>
-      <div class="items">{'&mdash;' if not fill_ins else ' '.join(str(i) for i in range(1, len(fill_ins)+1))}</div>
-      <div class="note">Low impact, low effort &mdash; do these when time allows.</div>
-    </div>
-    <div class="matrix-cell">
-      <h4>IGNORE THESE</h4>
-      <div class="items">&mdash;</div>
-      <div class="note">Low impact, high effort &mdash; not worth the time right now.</div>
-    </div>
-  </div>
-  <div class="footer-brand"><img src="data:image/png;base64,{LOGO_MARK_B64}"> COVENANT AI CONSULTING &middot; AI AUDIT REPORT</div>
-</div>
-
-<!-- PAGE 4: QUICK WINS WITH DETAILS -->
+<!-- PAGE 3: QUICK WINS WITH DETAILS -->
 <div class="page">
   <div class="eyebrow">High Impact, Low Effort</div>
   <h2>Quick Wins</h2>
@@ -511,7 +492,7 @@ HTML_TEMPLATE = f"""
   <div class="footer-brand"><img src="data:image/png;base64,{LOGO_MARK_B64}"> COVENANT AI CONSULTING &middot; AI AUDIT REPORT</div>
 </div>
 
-<!-- PAGE 5: X-DAY QUICK WIN PLAN -->
+<!-- PAGE 4: X-DAY QUICK WIN PLAN -->
 <div class="page">
   <div class="eyebrow">Getting Started</div>
   <h2>Your {len(quick_wins)}-Day Quick Wins Plan</h2>
@@ -522,7 +503,7 @@ HTML_TEMPLATE = f"""
   <div class="footer-brand"><img src="data:image/png;base64,{LOGO_MARK_B64}"> COVENANT AI CONSULTING &middot; AI AUDIT REPORT</div>
 </div>
 
-<!-- PAGE 6: WHAT TO DO NEXT -->
+<!-- PAGE 5: WHAT TO DO NEXT -->
 <div class="page">
   <div class="eyebrow">Looking Ahead</div>
   <h2>What to Do Next</h2>
@@ -530,7 +511,7 @@ HTML_TEMPLATE = f"""
   <div class="footer-brand"><img src="data:image/png;base64,{LOGO_MARK_B64}"> COVENANT AI CONSULTING &middot; AI AUDIT REPORT</div>
 </div>
 
-<!-- PAGE 7: FINANCIAL IMPACT -->
+<!-- PAGE 6: FINANCIAL IMPACT -->
 <div class="page fi-page">
   <div class="eyebrow">The Bottom Line</div>
   <h2>Financial Impact</h2>
@@ -552,7 +533,7 @@ HTML_TEMPLATE = f"""
   <div class="footer-brand"><img src="data:image/png;base64,{LOGO_MARK_B64}"> COVENANT AI CONSULTING &middot; AI AUDIT REPORT</div>
 </div>
 
-<!-- PAGE 8: NEXT STEPS -->
+<!-- PAGE 7: NEXT STEPS -->
 <div class="page next-steps-page">
   <div class="eyebrow">Next Steps</div>
   <h2>Let's put this into action</h2>
@@ -560,6 +541,7 @@ HTML_TEMPLATE = f"""
   <div class="cta-box">
     <h3 style="margin:0 0 8px 0;">Ready to talk it through?</h3>
     <p>Reach out to schedule a short review call. We'll walk through this report together, answer any questions, and help you get the first quick win running this week.</p>
+    {contact_block()}
   </div>
   <p style="margin-top:40px;">Thank you for choosing Covenant AI Consulting.</p>
   <div class="footer-brand"><img src="data:image/png;base64,{LOGO_MARK_B64}"> COVENANT AI CONSULTING &middot; AI AUDIT REPORT</div>
@@ -576,6 +558,9 @@ if __name__ == "__main__":
         out_path = Path(sys.argv[1])
     else:
         out_path = SCRIPT_DIR / "output" / "Highland_Auto_AI_Audit_Report_SAMPLE.pdf"
+    missing = [k for k, v in CONSULTANT.items() if not v]
+    if missing:
+        print(f"WARNING: CONSULTANT contact info missing: {', '.join(missing)}")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     HTML(string=HTML_TEMPLATE).write_pdf(out_path)
     print(f"Wrote {out_path}")
